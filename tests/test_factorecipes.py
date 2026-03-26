@@ -95,3 +95,15 @@ class TestFactoRecipes:
 
         with pytest.raises(RuntimeError, match="Missing recipe for 'lait'"):
             facto_recipes.compute_needs()
+
+    def test_with_float(self):
+        facto_recipes = FactoRecipes()
+        facto_recipes.add_basic_ingredient(name="sable")
+
+        facto_recipes.add_recipe(
+            recipe_name="chateau de sable",
+            ingredients={"sable": 50.5},
+        )
+        facto_recipes.add_need(name="chateau de sable", quantity=3)
+
+        assert facto_recipes.compute_needs() == {"chateau de sable": 3, "sable": 151.5}
