@@ -1,0 +1,18 @@
+basic-ingredients: 
+  asteroide-fer
+  asteroide-charbon
+
+recipes:
+  missile-jaune:
+    fer : 2.81
+    explosive : 1.4
+
+  munition-rouge:
+    plaque-cuivre : 1.87
+    acier : 0.93
+    munition-jaune : 1.87
+
+  obus-bleu:
+    explosive : 0.44
+    acier : 1.12
+    fil-cuivre : 2.25

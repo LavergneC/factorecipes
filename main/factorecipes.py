@@ -59,3 +59,14 @@ class FactoRecipes:
                 new_needs[recipe_ingredient] += recipe_ingredient_quantity * quantity
 
         self._needs_to_compute = new_needs
+
+
+if __name__ == "__main__":
+    facto_recipes = FactoRecipes()
+    facto_recipes.load_recipes_file("factorio.yaml")
+
+    facto_recipes.add_need(name="missile-jaune", quantity=800)
+    facto_recipes.add_need(name="munition-rouge", quantity=400)
+    facto_recipes.add_need(name="obus-bleu", quantity=150)
+
+    print(facto_recipes.compute_needs())
