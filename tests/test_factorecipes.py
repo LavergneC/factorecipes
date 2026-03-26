@@ -146,3 +146,56 @@ class TestFactoRecipes:
 
         assert facto_recipes._basic_ingredients == {"jambon", "beurre"}
         assert facto_recipes._recipes == {"jambon-beurre": {"jambon": 2, "beurre": 5}}
+
+    def test_needs_display_simple(self):
+        facto_recipes = FactoRecipes()
+        facto_recipes.add_basic_ingredient(name="jambon")
+        facto_recipes.add_basic_ingredient(name="beurre")
+        facto_recipes.add_basic_ingredient(name="salade")  # unused, should not appear
+
+        facto_recipes.add_recipe(
+            recipe_name="jambon beurre",
+            ingredients={"jambon": 2, "beurre": 5},
+        )
+
+        needs = {
+            "jambon beurre": 2,
+            "jambon": 4,
+            "beurre": 10,
+        }
+
+        assert facto_recipes.needs_display(needs) == [
+            {"jambon": 4, "beurre": 10},
+            {"jambon beurre": 2},
+        ]
+
+    def test_needs_display_complicated(self):
+        facto_recipes = FactoRecipes()
+        facto_recipes.add_basic_ingredient(name="jambon")
+        facto_recipes.add_basic_ingredient(name="lait")
+
+        facto_recipes.add_recipe(
+            recipe_name="jambon beurre",
+            ingredients={"jambon": 2, "beurre": 5},
+        )
+        facto_recipes.add_recipe(
+            recipe_name="beurre fromage",
+            ingredients={"fromage": 3, "beurre": 5},
+        )
+        facto_recipes.add_recipe(recipe_name="beurre", ingredients={"lait": 1})
+        facto_recipes.add_recipe(recipe_name="fromage", ingredients={"lait": 2})
+
+        needs = {
+            "jambon beurre": 2,
+            "beurre fromage": 3,
+            "jambon": 4,
+            "beurre": 25,
+            "fromage": 9,
+            "lait": 43,
+        }
+
+        assert facto_recipes.needs_display(needs) == [
+            {"jambon": 4, "lait": 43},
+            {"beurre": 25, "fromage": 9},
+            {"jambon beurre": 2, "beurre fromage": 3},
+        ]

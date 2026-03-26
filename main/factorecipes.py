@@ -40,6 +40,30 @@ class FactoRecipes:
             raise RuntimeError(f"The recipe '{recipe_name}' was already defined")
         self._recipes[recipe_name] = ingredients
 
+    def needs_display(
+        self,
+        needs: dict[str, float],
+    ) -> list[dict[IngredientName, float]]:
+        remaining_needs: dict[IngredientName, float] = needs.copy()
+        allowed_ingredients: set[IngredientName] = set()
+        ranked_needs: list[dict[IngredientName, float]] = []
+
+        while len(remaining_needs) != 0:
+            new_allowed_ingredients: set[IngredientName] = set()
+            ranked_needs.append({})
+            for need, quantity in remaining_needs.copy().items():
+                if self._is_allowed_for_needs_display(
+                    ingredient_to_test=need,
+                    allowed_ingredients=allowed_ingredients,
+                ):
+                    ranked_needs[-1][need] = quantity
+                    new_allowed_ingredients.add(need)
+                    remaining_needs.pop(need)
+
+            allowed_ingredients = allowed_ingredients.union(new_allowed_ingredients)
+
+        return ranked_needs
+
     def _compute_current_needs(self) -> None:
         new_needs = defaultdict(float)
 
@@ -60,6 +84,24 @@ class FactoRecipes:
 
         self._needs_to_compute = new_needs
 
+    def _is_allowed_for_needs_display(
+        self,
+        ingredient_to_test: str,
+        allowed_ingredients: set[IngredientName],
+    ) -> bool:
+        if (
+            ingredient_to_test in allowed_ingredients
+            or ingredient_to_test in self._basic_ingredients
+        ):
+            return True
+
+        return all(
+            [
+                ingredient_component in allowed_ingredients
+                for ingredient_component in self._recipes[ingredient_to_test]
+            ]
+        )
+
 
 if __name__ == "__main__":
     facto_recipes = FactoRecipes()
@@ -69,4 +111,5 @@ if __name__ == "__main__":
     facto_recipes.add_need(name="munition-rouge", quantity=400)
     facto_recipes.add_need(name="obus-bleu", quantity=150)
 
-    print(facto_recipes.compute_needs())
+    needs = facto_recipes.compute_needs()
+    print(facto_recipes.needs_display(needs))
