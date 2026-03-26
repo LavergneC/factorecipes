@@ -85,6 +85,38 @@ class TestFactoRecipes:
             "lait": 50,
         }
 
+    def test_recipes_sharing_ingredients_with_3_levels(self):
+        facto_recipes = FactoRecipes()
+
+        facto_recipes.add_basic_ingredient(name="jambon")
+        facto_recipes.add_basic_ingredient(name="lait")
+
+        facto_recipes.add_recipe(
+            recipe_name="jambon beurre",
+            ingredients={"jambon": 2, "beurre": 5},
+        )
+        facto_recipes.add_recipe(
+            recipe_name="beurre fromage",
+            ingredients={"fromage": 3, "beurre": 5},
+        )
+        facto_recipes.add_recipe(recipe_name="beurre", ingredients={"lait": 1})
+        facto_recipes.add_recipe(recipe_name="fromage", ingredients={"lait": 2})
+
+        facto_recipes.add_need(name="jambon beurre", quantity=2)
+        facto_recipes.add_need(name="beurre fromage", quantity=3)
+
+        assert (
+            facto_recipes.compute_needs()
+            == {
+                "jambon beurre": 2,
+                "beurre fromage": 3,
+                "jambon": 4,  # 2 jambon-beurre * 2 jambon/jambon-beurre
+                "beurre": 25,  # 2 jambon-beurre * 5 beurre/jambon-beurre + 3 beurre-fromage * 5 beurre/beurre-fromage
+                "fromage": 9,  # 3 beurre-fromage * 3 fromage/beurre-fromage
+                "lait": 43,  # 25 beurre * 1 lait/beurre + 9 fromage * 2 lait/fromage
+            }
+        )
+
     def test_missing_recipe(self):
         facto_recipes = FactoRecipes()
         facto_recipes.add_recipe(
