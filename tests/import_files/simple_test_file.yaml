@@ -1,0 +1,9 @@
+---
+basic-ingredients: 
+  jambon
+  beurre
+
+recipes:
+  jambon-beurre :
+    jambon : 2
+    beurre : 5

@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import yaml
+
 type RecipeName = str
 type IngredientName = str
 type RecipeIngredients = dict[IngredientName, float]
@@ -11,13 +13,13 @@ class FactoRecipes:
         self._basic_ingredients: set[IngredientName] = set()
         self._needs_to_compute = defaultdict(float)
 
-    def add_basic_ingredient(self, name: IngredientName) -> None:
-        self._basic_ingredients.add(name)
-
-    def add_recipe(self, recipe_name: str, ingredients: dict[str, float]) -> None:
-        if recipe_name in self._recipes.keys():
-            raise RuntimeError(f"The recipe '{recipe_name}' was already defined")
-        self._recipes[recipe_name] = ingredients
+    def load_recipes_file(self, path: str):
+        with open(path) as config_file:
+            data: dict = yaml.load(config_file, Loader=yaml.FullLoader)
+            self._basic_ingredients = {
+                ingredient for ingredient in data["basic-ingredients"].split()
+            }
+            self._recipes = data["recipes"]
 
     def add_need(self, name: str, quantity: float) -> None:
         self._needs_to_compute[name] += quantity
@@ -29,6 +31,14 @@ class FactoRecipes:
             self._compute_current_needs()
 
         return self._running_needs
+
+    def add_basic_ingredient(self, name: IngredientName) -> None:
+        self._basic_ingredients.add(name)
+
+    def add_recipe(self, recipe_name: str, ingredients: dict[str, float]) -> None:
+        if recipe_name in self._recipes.keys():
+            raise RuntimeError(f"The recipe '{recipe_name}' was already defined")
+        self._recipes[recipe_name] = ingredients
 
     def _compute_current_needs(self) -> None:
         new_needs = defaultdict(float)

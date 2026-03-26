@@ -107,3 +107,10 @@ class TestFactoRecipes:
         facto_recipes.add_need(name="chateau de sable", quantity=3)
 
         assert facto_recipes.compute_needs() == {"chateau de sable": 3, "sable": 151.5}
+
+    def test_simple_file_loading(self):
+        facto_recipes = FactoRecipes()
+        facto_recipes.load_recipes_file("tests/import_files/simple_test_file.yaml")
+
+        assert facto_recipes._basic_ingredients == {"jambon", "beurre"}
+        assert facto_recipes._recipes == {"jambon-beurre": {"jambon": 2, "beurre": 5}}
