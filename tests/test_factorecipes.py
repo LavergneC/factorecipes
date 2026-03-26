@@ -185,7 +185,7 @@ class TestFactoRecipes:
         facto_recipes.add_recipe(recipe_name="beurre", ingredients={"lait": 1})
         facto_recipes.add_recipe(recipe_name="fromage", ingredients={"lait": 2})
 
-        needs = {
+        needs: dict[str, float] = {
             "jambon beurre": 2,
             "beurre fromage": 3,
             "jambon": 4,

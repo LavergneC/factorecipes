@@ -49,20 +49,30 @@ class FactoRecipes:
         ranked_needs: list[dict[IngredientName, float]] = []
 
         while len(remaining_needs) != 0:
-            new_allowed_ingredients: set[IngredientName] = set()
-            ranked_needs.append({})
-            for need, quantity in remaining_needs.copy().items():
-                if self._is_allowed_for_needs_display(
-                    ingredient_to_test=need,
-                    allowed_ingredients=allowed_ingredients,
-                ):
-                    ranked_needs[-1][need] = quantity
-                    new_allowed_ingredients.add(need)
-                    remaining_needs.pop(need)
-
-            allowed_ingredients = allowed_ingredients.union(new_allowed_ingredients)
+            ranked_needs.append(self._build_rank(remaining_needs, allowed_ingredients))
 
         return ranked_needs
+
+    def _build_rank(
+        self,
+        remaining_needs: dict[IngredientName, float],
+        allowed_ingredients: set[IngredientName],
+    ) -> dict[IngredientName, float]:
+        new_allowed_ingredients: set[IngredientName] = set()
+        rank: dict[IngredientName, float] = {}
+
+        for need, quantity in remaining_needs.copy().items():
+            if self._is_allowed_for_needs_display(
+                ingredient_to_test=need,
+                allowed_ingredients=allowed_ingredients,
+            ):
+                rank[need] = quantity
+                new_allowed_ingredients.add(need)
+                remaining_needs.pop(need)
+
+        allowed_ingredients |= new_allowed_ingredients
+
+        return rank
 
     def _compute_current_needs(self) -> None:
         new_needs = defaultdict(float)
@@ -89,10 +99,7 @@ class FactoRecipes:
         ingredient_to_test: str,
         allowed_ingredients: set[IngredientName],
     ) -> bool:
-        if (
-            ingredient_to_test in allowed_ingredients
-            or ingredient_to_test in self._basic_ingredients
-        ):
+        if ingredient_to_test in allowed_ingredients | self._basic_ingredients:
             return True
 
         return all(
